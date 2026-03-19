@@ -1,0 +1,113 @@
+package org.example.extendible;
+
+public class Table {
+    Bucket[] directory = new Bucket[2];
+    int capacity;
+    //сколько последних бит будут использоваться для того чтобы определить в какую емкость следует заносить значения
+    int globalDepth = 1;
+
+    public Table(int capacity) {
+        this.capacity = capacity;
+        for (int i = 0; i < directory.length; i++) {
+            directory[i] = new Bucket(String.valueOf(i), capacity);
+        }
+    }
+    //А из разницы локальной глубины и глобальной глубины можно понять сколько ячеек каталога ссылаются на емкость
+    //K=2^{G−L} где G — глобальная глубина, L— локальная глубина, а K - количество ссылающихся ячеек
+
+    public void insert(int key, int value) {
+        var idx = hash(key);
+        var bucket = directory[idx];
+        if (bucket.insert(key, value)) return;
+        if (bucket.localDepth < globalDepth) {
+            split(idx);
+        } else {
+            globalDepth++;
+            resize(idx);
+        }
+        insert(key, value);
+    }
+
+    public Integer get(int key) {
+        var idx = hash(key);
+        return directory[idx].getValue(key);
+    }
+
+    public boolean remove(int key) {
+        var removed = false;
+        var idx = hash(key);
+        removed = directory[idx].removeValue(key);
+        if (directory[idx].size == 0) {
+            var ld = directory[idx].localDepth;
+            if (ld == 1) return removed; //two init buckets
+            var mask = 1 << (ld - 1);
+            var buddyIdx = (idx & mask) == 0 ? mask | idx : idx & ~mask;
+            if (buddyIdx >= directory.length) return removed;
+            if (directory[buddyIdx].localDepth != ld) return removed;
+            shrink(idx, buddyIdx);
+        }
+        return removed;
+    }
+
+    public boolean update(int key, int value) {
+        var idx = hash(key);
+        return directory[idx].updateValue(key, value);
+    }
+
+    private void resize(int insertIdx) {
+        var old = directory;
+        directory = new Bucket[directory.length << 1];
+        for (int i = 0; i < old.length; i++) {
+            directory[i] = old[i];
+            directory[i + old.length] = old[i];
+        }
+        split(insertIdx);
+    }
+
+    private void split(int i) {
+        var initBucket = directory[i];
+        var j = 1 << initBucket.localDepth | i;
+        directory[i] = new Bucket(initBucket.idx + i, capacity, initBucket.localDepth + 1);
+        directory[j] = new Bucket(initBucket.idx + j, capacity, initBucket.localDepth + 1);
+        for (int k = 0; k < directory.length; k++) {
+            if (directory[k] == initBucket) {
+                //k - это последние localDepth битов, нас интересует только старший бит
+                if ((k & (1 << initBucket.localDepth)) == 0) {
+                    directory[k] = directory[i];
+                } else {
+                    directory[k] = directory[j];
+                }
+            }
+        }
+        for (int k = 0; k < initBucket.size; k++) {
+            var kv = initBucket.get(k);
+            if (kv == null) continue;
+            insert(kv.key(), kv.value());
+        }
+        initBucket.remove();
+    }
+
+    private void shrink(int idx, int buddyIdx) {
+        var bucket = directory[idx];
+        if (directory[buddyIdx] != null) {
+            directory[idx] = directory[buddyIdx];
+        }
+        var maxLocalDepth = 0;
+        for (int i = 0; i < directory.length; i++) {
+            if (directory[i] == bucket) {
+                directory[i] = directory[buddyIdx];
+            }
+            maxLocalDepth = Math.max(maxLocalDepth, directory[i].localDepth);
+        }
+        directory[buddyIdx].localDepth = directory[buddyIdx].localDepth - 1;
+        if (maxLocalDepth < globalDepth) {
+            globalDepth = maxLocalDepth;
+        }
+        bucket.remove();
+    }
+
+    private int hash(int key) {
+        var k = key < 0 ? -key : key;
+        return k % (int) Math.pow(2, globalDepth);
+    }
+}
