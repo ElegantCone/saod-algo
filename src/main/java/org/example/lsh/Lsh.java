@@ -15,18 +15,6 @@ public class Lsh {
         table = new Table();
     }
 
-    /*public void buildTable(BufferedReader reader) throws IOException {
-        var current = reader.readLine();
-        while (current != null) {
-            var coords = current.split(" ");
-            var x = Integer.parseInt(coords[0]);
-            var y = Integer.parseInt(coords[1]);
-            var z = Integer.parseInt(coords[2]);
-            insert(x, y, z);
-            current = reader.readLine();
-        }
-    }*/
-
     public void insert(int x, int y, int z) {
         insert(new Point(x, y, z));
     }
@@ -67,7 +55,8 @@ public class Lsh {
         var points = get(x, y, z, threshold);
         var toReturn = new ArrayList<Point>();
         for (var p : points) {
-            if (Math.sqrt(Math.pow(x - p.x(), 2) + Math.pow(y - p.y(), 2) + Math.pow(z - p.z(), 2)) < radius) {
+            var dist = Math.sqrt(Math.pow(x - p.x(), 2) + Math.pow(y - p.y(), 2) + Math.pow(z - p.z(), 2));
+            if (dist <= radius) {
                 toReturn.add(p);
             }
         }

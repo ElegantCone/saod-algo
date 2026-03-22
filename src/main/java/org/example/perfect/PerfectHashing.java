@@ -42,7 +42,7 @@ public class PerfectHashing {
         return null;
     }
 
-    private int hash(String str) {
+    public int hash(String str) {
         long sum = 0;
         for (var c : str.toCharArray()) {
             sum += c;

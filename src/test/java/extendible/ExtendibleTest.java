@@ -1,9 +1,12 @@
+package extendible;
+
 import org.example.extendible.Table;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class ExtendibleTest {
@@ -13,7 +16,7 @@ public class ExtendibleTest {
     int iterations = 100;
 
     @BeforeEach
-    public void beforeEach() {
+    public void beforeEach() throws IOException {
         File file = new File("output");
         if (!file.exists()) {
             file.mkdir();
@@ -31,7 +34,8 @@ public class ExtendibleTest {
                 var value = random.nextInt();
                 table.insert(key, value);
                 map.put(key, value);
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
     }
 
@@ -81,6 +85,66 @@ public class ExtendibleTest {
         for (var key : nonExistingKeys) {
             Assertions.assertNull(table.get(key));
         }
+    }
+
+    enum Operation {
+        INSERT, DELETE, UPDATE
+    }
+
+    @Test
+    public void randomOperations_matchesHashMap() {
+        for (int i = 0; i < 1000; i++) {
+            var operationIdx = random.nextInt(3);
+            var operation = Operation.values()[operationIdx];
+            var key = getRandomKey();
+            try {
+                switch (operation) {
+                    case INSERT -> {
+                        var value = random.nextInt();
+                        try {
+                            table.insert(key, value);
+                            map.put(key, value);
+                        } catch (IOException ignored) {
+                        }
+                    }
+                    case DELETE -> {
+                        if (table.remove(key)) {
+                            map.remove(key);
+                        }
+                    }
+                    case UPDATE -> {
+                        var newValue = random.nextInt();
+                        if (table.update(key, newValue)) {
+                            map.put(key, newValue);
+                        }
+                    }
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+            for (var entry : map.entrySet()) {
+                Assertions.assertEquals(entry.getValue(), table.get(entry.getKey()));
+            }
+        }
+    }
+
+    @Test
+    public void removeCausesMerges_dataRemainsAccessible() {
+        for (int i = 0; i < iterations; i++) {
+            var keys = map.keySet().toArray(Integer[]::new);
+            Integer key = keys[random.nextInt(0, map.size())];
+            Assertions.assertTrue(table.remove(key));
+            Assertions.assertNull(table.get(key));
+            map.remove(key);
+        }
+        for (var entry : map.entrySet()) {
+            Assertions.assertEquals(entry.getValue(), table.get(entry.getKey()));
+        }
+    }
+
+
+    private Integer getRandomKey() {
+        var keys = map.keySet().toArray(Integer[]::new);
+        return keys[random.nextInt(0, map.size())];
     }
 
     private List<Integer> generateNonExistingKeys() {

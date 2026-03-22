@@ -1,12 +1,14 @@
 package org.example.extendible;
 
+import java.io.IOException;
+
 public class Table {
     Bucket[] directory = new Bucket[2];
     int capacity;
     //сколько последних бит будут использоваться для того чтобы определить в какую емкость следует заносить значения
     int globalDepth = 1;
 
-    public Table(int capacity) {
+    public Table(int capacity) throws IOException {
         this.capacity = capacity;
         for (int i = 0; i < directory.length; i++) {
             directory[i] = new Bucket(String.valueOf(i), capacity);
@@ -15,7 +17,7 @@ public class Table {
     //А из разницы локальной глубины и глобальной глубины можно понять сколько ячеек каталога ссылаются на емкость
     //K=2^{G−L} где G — глобальная глубина, L— локальная глубина, а K - количество ссылающихся ячеек
 
-    public void insert(int key, int value) {
+    public void insert(int key, int value) throws IOException {
         var idx = hash(key);
         var bucket = directory[idx];
         if (bucket.insert(key, value)) return;
@@ -54,7 +56,7 @@ public class Table {
         return directory[idx].updateValue(key, value);
     }
 
-    private void resize(int insertIdx) {
+    private void resize(int insertIdx) throws IOException {
         var old = directory;
         directory = new Bucket[directory.length << 1];
         for (int i = 0; i < old.length; i++) {
@@ -64,7 +66,7 @@ public class Table {
         split(insertIdx);
     }
 
-    private void split(int i) {
+    private void split(int i) throws IOException {
         var initBucket = directory[i];
         var j = 1 << initBucket.localDepth | i;
         directory[i] = new Bucket(initBucket.idx + i, capacity, initBucket.localDepth + 1);

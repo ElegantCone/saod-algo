@@ -17,9 +17,7 @@ public class Bucket {
     int capacity;
     int localDepth = 1;
 
-
-    @SneakyThrows
-    public Bucket(String idx, int capacity) {
+    public Bucket(String idx, int capacity) throws IOException {
         this.capacity = capacity;
         this.idx = idx;
         this.file = new File("output/data-" + idx);
@@ -28,7 +26,8 @@ public class Bucket {
         buffer = randomAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, (long) Integer.BYTES * capacity * 2 + Byte.BYTES);
     }
 
-    public Bucket(String idx, int capacity, int localDepth) {
+    @SneakyThrows
+    public Bucket(String idx, int capacity, int localDepth) throws IOException {
         this(idx, capacity);
         this.localDepth = localDepth;
     }

@@ -1,15 +1,14 @@
-import lombok.SneakyThrows;
 import net.datafaker.Faker;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 
 public class TestUtils {
 
-    @SneakyThrows
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void initKeyValuePairs() {
+    public static void initKeyValuePairs() throws IOException {
         try {
             var existingFile = new File("words.txt");
             if (existingFile.exists()) {

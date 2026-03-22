@@ -1,5 +1,6 @@
 package org.example.perfect;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.hashtable.Record;
 
@@ -8,16 +9,17 @@ import java.util.List;
 import java.util.Random;
 
 @NoArgsConstructor
+@Getter
 public class PerfectBucket {
     Random random = new Random();
     Record[] table;
     int a;
     int b;
-    int max = random.nextInt(1_000_000, 10_000_000);
-    List<org.example.hashtable.Record> records = new ArrayList<>();
+    int max = 1_000_003;
+    List<Record> records = new ArrayList<>();
 
     public void add(String key, String value) {
-        records.add(new org.example.hashtable.Record(key, value));
+        records.add(new Record(key, value));
     }
 
     public void buildTable() {
@@ -41,15 +43,15 @@ public class PerfectBucket {
         long hash = 0;
         for (int i = 0; i < key.length(); i++) {
             var c = key.charAt(i);
-            hash = ((hash * b + (long)a * c) % max) * (i+1);
+            hash = (hash * b + (long) a * c) % max;
         }
         return (int) (hash % table.length);
     }
 
     private boolean build() {
         table = new Record[records.size() * records.size()];
-        a = random.nextInt(1_000, 100_000);
-        b = random.nextInt(1_000, 100_000);
+        a = random.nextInt(10, 100_000);
+        b = random.nextInt(10, 100_000);
         for (var record : records) {
             var hash = hash(record.key());
             if (table[hash] == null) {
