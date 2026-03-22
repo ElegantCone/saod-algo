@@ -34,7 +34,10 @@ public class Bucket {
 
     public boolean insert(int key, int value) {
         if (size == capacity) return false;
-        if (getValue(key) != null) throw new IllegalArgumentException("Key " + key + " already exists");
+        if (getValue(key) != null) {
+            System.out.println("Try to insert: " + key + "but it already exists with value: " + getValue(key));
+            throw new IllegalArgumentException("Key " + key + " already exists");
+        }
         if (size == 0) {
             buffer.put(0, (byte) 1);
             buffer.position(1);

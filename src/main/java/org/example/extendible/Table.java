@@ -2,7 +2,7 @@ package org.example.extendible;
 
 import java.io.IOException;
 
-public class Table {
+public class Table implements AutoCloseable {
     Bucket[] directory = new Bucket[2];
     int capacity;
     //сколько последних бит будут использоваться для того чтобы определить в какую емкость следует заносить значения
@@ -11,6 +11,13 @@ public class Table {
     public Table(int capacity) throws IOException {
         this.capacity = capacity;
         for (int i = 0; i < directory.length; i++) {
+            directory[i] = new Bucket(String.valueOf(i), capacity);
+        }
+    }
+
+    public Table(int idx, int capacity) throws IOException {
+        this.capacity = capacity;
+        for (int i = idx; i < directory.length + idx; i++) {
             directory[i] = new Bucket(String.valueOf(i), capacity);
         }
     }
@@ -111,5 +118,14 @@ public class Table {
     private int hash(int key) {
         var k = key < 0 ? -key : key;
         return k % (int) Math.pow(2, globalDepth);
+    }
+
+    @Override
+    public void close() {
+        for (var b : directory) {
+            if (b != null) {
+                b.remove();
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ public class ExtendibleTest {
     static Map<Integer, Integer> map;
     static Table table;
     static Random random = new Random();
-    int iterations = 100;
+    int iterations = 1_000;
 
     @BeforeEach
     public void beforeEach() throws IOException {
@@ -93,7 +93,7 @@ public class ExtendibleTest {
 
     @Test
     public void randomOperations_matchesHashMap() {
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < iterations; i++) {
             var operationIdx = random.nextInt(3);
             var operation = Operation.values()[operationIdx];
             var key = getRandomKey();
