@@ -1,24 +1,36 @@
 package org.example.extendible;
 
+import java.io.File;
 import java.io.IOException;
 
 public class Table implements AutoCloseable {
     Bucket[] directory = new Bucket[2];
     int capacity;
+    File dataDir;
     //сколько последних бит будут использоваться для того чтобы определить в какую емкость следует заносить значения
     int globalDepth = 1;
 
     public Table(int capacity) throws IOException {
+        this(new File("output"), capacity);
+    }
+
+    public Table(File dataDir, int capacity) throws IOException {
+        this.dataDir = dataDir;
         this.capacity = capacity;
         for (int i = 0; i < directory.length; i++) {
-            directory[i] = new Bucket(String.valueOf(i), capacity);
+            directory[i] = new Bucket(dataDir, String.valueOf(i), capacity);
         }
     }
 
     public Table(int idx, int capacity) throws IOException {
+        this(new File("output"), idx, capacity);
+    }
+
+    public Table(File dataDir, int idx, int capacity) throws IOException {
+        this.dataDir = dataDir;
         this.capacity = capacity;
         for (int i = idx; i < directory.length + idx; i++) {
-            directory[i] = new Bucket(String.valueOf(i), capacity);
+            directory[i] = new Bucket(dataDir, String.valueOf(i), capacity);
         }
     }
     //А из разницы локальной глубины и глобальной глубины можно понять сколько ячеек каталога ссылаются на емкость
@@ -75,16 +87,20 @@ public class Table implements AutoCloseable {
 
     private void split(int i) throws IOException {
         var initBucket = directory[i];
-        var j = 1 << initBucket.localDepth | i;
-        directory[i] = new Bucket(initBucket.idx + i, capacity, initBucket.localDepth + 1);
-        directory[j] = new Bucket(initBucket.idx + j, capacity, initBucket.localDepth + 1);
+        var splitBit = 1 << initBucket.localDepth;
+        var lowerBitsMask = splitBit - 1;
+        var leftIdx = i & lowerBitsMask;
+        var rightIdx = leftIdx | splitBit;
+
+        directory[leftIdx] = new Bucket(dataDir, initBucket.idx + leftIdx, capacity, initBucket.localDepth + 1);
+        directory[rightIdx] = new Bucket(dataDir, initBucket.idx + rightIdx, capacity, initBucket.localDepth + 1);
         for (int k = 0; k < directory.length; k++) {
             if (directory[k] == initBucket) {
                 //k - это последние localDepth битов, нас интересует только старший бит
-                if ((k & (1 << initBucket.localDepth)) == 0) {
-                    directory[k] = directory[i];
+                if ((k & splitBit) == 0) {
+                    directory[k] = directory[leftIdx];
                 } else {
-                    directory[k] = directory[j];
+                    directory[k] = directory[rightIdx];
                 }
             }
         }
@@ -116,8 +132,7 @@ public class Table implements AutoCloseable {
     }
 
     private int hash(int key) {
-        var k = key < 0 ? -key : key;
-        return k % (int) Math.pow(2, globalDepth);
+        return Math.floorMod(key, 1 << globalDepth);
     }
 
     @Override

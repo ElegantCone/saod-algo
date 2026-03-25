@@ -3,117 +3,148 @@ package org.example.benchmark;
 import org.example.extendible.Table;
 import org.openjdk.jmh.annotations.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
-@State(Scope.Benchmark)
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Warmup(iterations = 1, time = 1)
-@Measurement(iterations = 3, time = 1)
-@Fork(3)
 public class ExtendibleBenchmark {
     private static final int CAPACITY = 64;
+    private static final int INSERT_KEYS_COUNT = 1_000_000;
 
-    @Param({"100", "300", "500", "1000", "1200", "1600", "1800", "2000"})
-    public int size;
+    @State(Scope.Benchmark)
+    public static class BenchmarkData {
+        @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
+        public int size;
 
-    public int[] keys;
-    public List<Integer> newKeys;
-    public int idx = 0;
-    public int[] values;
-    public Table table;
-    public Random random;
+        public int[] keys;
+        public int[] values;
+        public int[] insertKeys;
+        public int[] insertValues;
+        public Random random;
+        public Path benchmarkDir;
 
-    @Setup(Level.Iteration)
-    public void setup() throws IOException {
-        random = new Random(size);
-        keys = new int[size];
-        values = new int[size];
-        table = new Table(CAPACITY);
-        var usedKeys = new HashSet<Integer>(size * 3);
-        for (var i = 0; i < size; i++) {
-            keys[i] = nextUniquePositiveKey(usedKeys);
-            values[i] = random.nextInt(Integer.MAX_VALUE);
-            table.insert(keys[i], values[i]);
+        @Setup(Level.Trial)
+        public void setupTrial() throws IOException {
+            random = new Random(size);
+            int totalKeyCount = size + INSERT_KEYS_COUNT;
+            int firstKey = random.nextInt(1, Integer.MAX_VALUE - totalKeyCount);
+
+            keys = new int[size];
+            values = new int[size];
+            for (int i = 0; i < size; i++) {
+                keys[i] = firstKey + i;
+                values[i] = random.nextInt(Integer.MAX_VALUE);
+            }
+
+            insertKeys = new int[INSERT_KEYS_COUNT];
+            insertValues = new int[INSERT_KEYS_COUNT];
+            for (int i = 0; i < INSERT_KEYS_COUNT; i++) {
+                insertKeys[i] = firstKey + size + i;
+                insertValues[i] = random.nextInt(Integer.MAX_VALUE);
+            }
+
+            benchmarkDir = Files.createTempDirectory("extendible-benchmark-");
         }
-        idx = 0;
-        newKeys = new ArrayList<>(size);
-        while (newKeys.size() < size) {
-            newKeys.add(nextUniquePositiveKey(usedKeys));
+
+        @TearDown(Level.Trial)
+        public void cleanupTrial() {
+            if (benchmarkDir == null) {
+                return;
+            }
+            var output = benchmarkDir.toFile();
+            var files = output.listFiles();
+            if (files == null) {
+                output.delete();
+                return;
+            }
+            for (var file : files) {
+                file.delete();
+            }
+            output.delete();
         }
     }
 
-    @TearDown(Level.Iteration)
-    public void cleanup() {
-        if (table != null) {
-            table.close();
+    @State(Scope.Thread)
+    public static class TableState {
+        public Table table;
+
+        @Setup(Level.Iteration)
+        public void setupIteration(BenchmarkData data) throws IOException {
+            table = new Table(data.benchmarkDir.toFile(), CAPACITY);
+            for (int i = 0; i < data.size; i++) {
+                table.insert(data.keys[i], data.values[i]);
+            }
         }
-        var output = new File("output");
-        if (!output.exists()) {
-            output.mkdirs();
-            return;
+
+        @TearDown(Level.Iteration)
+        public void cleanupIteration() {
+            if (table != null) {
+                table.close();
+                table = null;
+            }
         }
-        var files = output.listFiles();
-        if (files == null) {
-            return;
+    }
+
+    @State(Scope.Thread)
+    public static class InsertState {
+        public Table table;
+        public int nextInsertIdx;
+
+        @Setup(Level.Trial)
+        public void setupTrial() {
+            nextInsertIdx = 0;
         }
-        for (var file : files) {
-            file.delete();
+
+        @Setup(Level.Invocation)
+        public void setupInvocation(BenchmarkData data) throws IOException {
+            table = new Table(data.benchmarkDir.toFile(), CAPACITY);
+            for (int i = 0; i < data.size; i++) {
+                table.insert(data.keys[i], data.values[i]);
+            }
+        }
+
+        @TearDown(Level.Invocation)
+        public void cleanupInvocation() {
+            if (table != null) {
+                table.close();
+                table = null;
+            }
         }
     }
 
     @Benchmark
-    public void insertNew() {
-        int key = nextMissingKey();
-        int value = random.nextInt(Integer.MAX_VALUE);
+    public void extensibleInsert(BenchmarkData data, InsertState state) {
+        int nextIdx = state.nextInsertIdx++;
+        if (nextIdx >= data.insertKeys.length) {
+            throw new IllegalStateException("Pre-generated insert keys exhausted");
+        }
         try {
-            table.insert(key, value);
+            state.table.insert(data.insertKeys[nextIdx], data.insertValues[nextIdx]);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to insert new key", e);
         }
     }
 
     @Benchmark
-    public Integer getExisting() {
-        return table.get(keys[random.nextInt(keys.length)]);
+    public Integer extensibleGetExisting(BenchmarkData data, TableState state) {
+        return state.table.get(data.keys[data.random.nextInt(data.keys.length)]);
     }
 
     @Benchmark
-    public Integer getSameEntry() {
-        return table.get(keys[0]);
+    public Integer extensibleGetSameEntry(BenchmarkData data, TableState state) {
+        return state.table.get(data.keys[0]);
     }
 
     @Benchmark
-    public void updateExisting() {
-        int idx = random.nextInt(keys.length);
-        table.update(keys[idx], random.nextInt(Integer.MAX_VALUE));
+    public void extensibleUpdateExisting(BenchmarkData data, TableState state) {
+        int idx = data.random.nextInt(data.keys.length);
+        state.table.update(data.keys[idx], data.random.nextInt(Integer.MAX_VALUE));
     }
 
     @Benchmark
-    public void removeExisting() {
-        int key = keys[random.nextInt(keys.length)];
-        table.remove(key);
-    }
-
-    private int nextUniquePositiveKey(HashSet<Integer> usedKeys) {
-        int key = random.nextInt(1, Integer.MAX_VALUE);
-        while (!usedKeys.add(key)) {
-            key = random.nextInt(1, Integer.MAX_VALUE);
-        }
-        return key;
-    }
-
-    private int nextMissingKey() {
-        int key = random.nextInt(1, Integer.MAX_VALUE);
-        while (table.get(key) != null) {
-            key = random.nextInt(1, Integer.MAX_VALUE);
-        }
-        return key;
+    public void extensibleRemoveExisting(BenchmarkData data, TableState state) {
+        int key = data.keys[data.random.nextInt(data.keys.length)];
+        state.table.remove(key);
     }
 }

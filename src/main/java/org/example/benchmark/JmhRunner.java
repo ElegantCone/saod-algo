@@ -1,11 +1,15 @@
 package org.example.benchmark;
 
 import lombok.NoArgsConstructor;
+import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
+
+import java.util.concurrent.TimeUnit;
 
 @NoArgsConstructor
 public final class JmhRunner {
@@ -15,11 +19,15 @@ public final class JmhRunner {
         Options options = new OptionsBuilder()
                 .include(include)
                 .shouldFailOnError(true)
-                .forks(3)
-                .warmupIterations(1)
-                .measurementIterations(3)
+                .forks(1)
+                .warmupIterations(3)
+                .measurementIterations(10)
                 .result("target/jmh-results.json")
                 .resultFormat(ResultFormatType.JSON)
+                .mode(Mode.AverageTime)
+                .timeUnit(TimeUnit.NANOSECONDS)
+                .warmupTime(TimeValue.seconds(1))
+                .measurementTime(TimeValue.seconds(1))
                 .build();
         new Runner(options).run();
     }

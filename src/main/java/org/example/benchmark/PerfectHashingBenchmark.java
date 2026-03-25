@@ -12,13 +12,8 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Warmup(iterations = 1, time = 1)
-@Measurement(iterations = 3, time = 1)
-@Fork(3)
 public class PerfectHashingBenchmark {
-    @Param({"100", "300", "500", "1000", "1200", "1600", "1800", "2000"})
+    @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
     public int size;
     public Map<String, String> data;
     public String[] keys;
@@ -42,7 +37,7 @@ public class PerfectHashingBenchmark {
     }
 
     @Benchmark
-    public void build() {
+    public void perfectBuild() {
         var table = new PerfectHashing(7, 31, 30);
         var newData = new LinkedHashMap<String, String>(size);
         for (var i = 0; i < size; i++) {
@@ -52,7 +47,7 @@ public class PerfectHashingBenchmark {
     }
 
     @Benchmark
-    public String getExisting() {
+    public String perfectGetExisting() {
         return perfectHashing.get(keys[random.nextInt(keys.length)]);
     }
 }

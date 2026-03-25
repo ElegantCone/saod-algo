@@ -18,9 +18,16 @@ public class Bucket {
     int localDepth = 1;
 
     public Bucket(String idx, int capacity) throws IOException {
+        this(new File("output"), idx, capacity);
+    }
+
+    public Bucket(File baseDir, String idx, int capacity) throws IOException {
         this.capacity = capacity;
         this.idx = idx;
-        this.file = new File("output/data-" + idx);
+        if (!baseDir.exists()) {
+            baseDir.mkdirs();
+        }
+        this.file = new File(baseDir, "data-" + idx);
         file.createNewFile();
         this.randomAccessFile = new RandomAccessFile(file, "rw");
         buffer = randomAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, (long) Integer.BYTES * capacity * 2 + Byte.BYTES);
@@ -32,12 +39,16 @@ public class Bucket {
         this.localDepth = localDepth;
     }
 
+    @SneakyThrows
+    public Bucket(File baseDir, String idx, int capacity, int localDepth) throws IOException {
+        this(baseDir, idx, capacity);
+        this.localDepth = localDepth;
+    }
+
     public boolean insert(int key, int value) {
         if (size == capacity) return false;
-        if (getValue(key) != null) {
-            System.out.println("Try to insert: " + key + "but it already exists with value: " + getValue(key));
+        if (getValue(key) != null)
             throw new IllegalArgumentException("Key " + key + " already exists");
-        }
         if (size == 0) {
             buffer.put(0, (byte) 1);
             buffer.position(1);
