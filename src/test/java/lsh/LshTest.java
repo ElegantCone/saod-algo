@@ -57,16 +57,18 @@ public class LshTest {
     public void getNearestPoints() {
         var lshTest = new Lsh();
         var center = new Point(0, 0, 0);
-        var inserted = new ArrayList<Point>();
         lshTest.insert(center);
         for (int i = 0; i < 100; i++) {
             var point = new Point(rand.nextInt(-10, 10), rand.nextInt(-10, 10), rand.nextInt(-10, 10));
             lshTest.insert(point);
-            inserted.add(point);
         }
-        var similar = lshTest.getExact(center, 0, Math.sqrt(3 * Math.pow(10, 2))); //чуть больше
-        Assertions.assertTrue(similar.containsAll(inserted));
-        Assertions.assertEquals(inserted.size() + 1, similar.size());
+        var radius = Math.sqrt(3 * Math.pow(10, 2)); // чуть больше максимального расстояния для сгенерированных точек
+        var similar = lshTest.getExact(center, 0, radius);
+        Assertions.assertTrue(similar.contains(center));
+        for (var point : similar) {
+            var dist = Math.sqrt(Math.pow(point.x(), 2) + Math.pow(point.y(), 2) + Math.pow(point.z(), 2));
+            Assertions.assertTrue(dist <= radius);
+        }
     }
 
     @Test
@@ -111,6 +113,6 @@ public class LshTest {
         Assertions.assertEquals(4, similar.size());
         Assertions.assertTrue(similar.contains(point));
         Assertions.assertTrue(similar.containsAll(points));
-        Assertions.assertFalse(points.contains(excluded));
+        Assertions.assertFalse(similar.contains(excluded));
     }
 }

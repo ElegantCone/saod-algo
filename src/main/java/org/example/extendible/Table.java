@@ -21,18 +21,6 @@ public class Table implements AutoCloseable {
             directory[i] = new Bucket(dataDir, String.valueOf(i), capacity);
         }
     }
-
-    public Table(int idx, int capacity) throws IOException {
-        this(new File("output"), idx, capacity);
-    }
-
-    public Table(File dataDir, int idx, int capacity) throws IOException {
-        this.dataDir = dataDir;
-        this.capacity = capacity;
-        for (int i = idx; i < directory.length + idx; i++) {
-            directory[i] = new Bucket(dataDir, String.valueOf(i), capacity);
-        }
-    }
     //А из разницы локальной глубины и глобальной глубины можно понять сколько ячеек каталога ссылаются на емкость
     //K=2^{G−L} где G — глобальная глубина, L— локальная глубина, а K - количество ссылающихся ячеек
 

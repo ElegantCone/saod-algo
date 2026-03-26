@@ -1,10 +1,7 @@
 package org.example.benchmark;
 
-import org.example.lsh.Lsh;
-import org.example.lsh.Point;
 import org.example.perfect.PerfectHashing;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,6 +9,11 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@Warmup(iterations = 3, time = 1)
+@Measurement(iterations = 5, time = 5)
+@Fork(3)
 public class PerfectHashingBenchmark {
     @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
     public int size;

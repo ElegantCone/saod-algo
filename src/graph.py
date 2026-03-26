@@ -73,27 +73,6 @@ def plot_group(method_name, mode, rows):
     plt.close()
 
 
-def plot_individual(rows):
-    for row in rows:
-        benchmark = row["benchmark"]
-        mode = row["mode"]
-        size = int(row.get("params", {}).get("size", 0))
-        metric = row["primaryMetric"]
-
-        plt.figure(figsize=(6, 4))
-        plt.bar([short_name(benchmark)], [metric["score"]], yerr=[metric.get("scoreError", 0.0)], capsize=6)
-        plt.title(f"{short_name(benchmark)} | size={size} | {mode}")
-        plt.ylabel(metric["scoreUnit"])
-        plt.grid(True, axis="y", alpha=0.3)
-        plt.tight_layout()
-
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        safe_name = benchmark.replace(".", "_")
-        output_file = OUTPUT_DIR / f"{safe_name}_size{size}_{mode}.png"
-        plt.savefig(output_file, dpi=160)
-        plt.close()
-
-
 def main():
     if not RESULTS_FILE.exists():
         raise FileNotFoundError(f"Results file not found: {RESULTS_FILE}")
@@ -103,8 +82,6 @@ def main():
     grouped = group_by_operation(rows)
     for (method_name, mode), group_rows in grouped.items():
         plot_group(method_name, mode, group_rows)
-
-    plot_individual(rows)
 
     print(f"Saved charts to: {OUTPUT_DIR}")
 

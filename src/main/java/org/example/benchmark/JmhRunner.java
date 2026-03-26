@@ -15,19 +15,19 @@ import java.util.concurrent.TimeUnit;
 public final class JmhRunner {
 
     public static void main(String[] args) throws RunnerException {
-        var include = args.length > 0 ? args[0] : ".*";
+        var include = args.length > 0 ? args[0] : "ExtendibleBenchmark.*";
         Options options = new OptionsBuilder()
                 .include(include)
                 .shouldFailOnError(true)
-                .forks(1)
-                .warmupIterations(3)
-                .measurementIterations(10)
+                .forks(3)
+                .warmupIterations(2)
+                .measurementIterations(5)
                 .result("target/jmh-results.json")
                 .resultFormat(ResultFormatType.JSON)
                 .mode(Mode.AverageTime)
                 .timeUnit(TimeUnit.NANOSECONDS)
                 .warmupTime(TimeValue.seconds(1))
-                .measurementTime(TimeValue.seconds(1))
+                .measurementTime(TimeValue.seconds(3))
                 .build();
         new Runner(options).run();
     }

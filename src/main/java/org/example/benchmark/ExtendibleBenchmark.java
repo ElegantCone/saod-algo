@@ -7,7 +7,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+@State(Scope.Benchmark)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@Warmup(iterations = 3, time = 1)
+@Measurement(iterations = 5, time = 3)
+@Fork(3)
 public class ExtendibleBenchmark {
     private static final int CAPACITY = 64;
     private static final int INSERT_KEYS_COUNT = 1_000_000;

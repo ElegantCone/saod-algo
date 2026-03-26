@@ -72,21 +72,6 @@ public class HashTable {
         return false;
     }
 
-    /*public void rebuildTable(int newA, int newB) {
-        this.a = newA;
-        this.b = newB;
-        var oldTable = table;
-        table = new Bucket[tableSize];
-        for (var b : oldTable) {
-            if (b == null) continue;
-            var oldBucket = new ArrayList<>(b.elements());
-            b.elements().clear();
-            for (var element : oldBucket) {
-                insert(element.key(), element.value());
-            }
-        }
-    }*/
-
     public int hash(String str) {
         long sum = 0;
         for (var c : str.toCharArray()) {

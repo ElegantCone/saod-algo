@@ -20,6 +20,7 @@ public class PerfectHashing {
     }
 
     public void build(Map<String, String> data) {
+        clear();
         for (var entry : data.entrySet()) {
             var hash = hash(entry.getKey());
             if (tables[hash] == null) {
@@ -48,5 +49,9 @@ public class PerfectHashing {
             sum += c;
         }
         return (int) ((a * sum + b) % tableSize);
+    }
+
+    private void clear() {
+        Arrays.fill(tables, null);
     }
 }

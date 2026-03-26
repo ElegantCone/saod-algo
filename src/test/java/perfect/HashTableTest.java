@@ -33,6 +33,7 @@ public class HashTableTest {
     @Test
     public void insertRandomValues_success() {
         for (var entry : map.entrySet()) {
+            Assertions.assertNotNull(table.get(entry.getKey()));
             Assertions.assertEquals(entry.getValue(), table.get(entry.getKey()));
         }
     }
