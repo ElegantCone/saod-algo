@@ -1,4 +1,4 @@
-package extendible;
+package lab1.extendible;
 
 import org.example.lab1.extendible.Table;
 import org.junit.jupiter.api.Assertions;

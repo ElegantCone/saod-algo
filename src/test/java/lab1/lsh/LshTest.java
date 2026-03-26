@@ -1,4 +1,4 @@
-package lsh;
+package lab1.lsh;
 
 import org.example.lab1.lsh.Lsh;
 import org.example.lab1.lsh.Point;

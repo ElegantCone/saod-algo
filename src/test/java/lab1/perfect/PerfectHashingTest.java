@@ -1,4 +1,4 @@
-package perfect;
+package lab1.perfect;
 
 import org.example.lab1.perfect.PerfectHashing;
 import org.junit.jupiter.api.Assertions;
