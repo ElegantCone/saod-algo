@@ -1,4 +1,4 @@
-package org.example.extendible;
+package org.example.lab1.extendible;
 
 import lombok.Getter;
 import lombok.SneakyThrows;

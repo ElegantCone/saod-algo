@@ -1,6 +1,6 @@
-package org.example.benchmark;
+package org.example.lab1.benchmark;
 
-import org.example.perfect.PerfectHashing;
+import org.example.lab1.perfect.PerfectHashing;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.LinkedHashMap;

@@ -1,7 +1,7 @@
 package lsh;
 
-import org.example.lsh.Lsh;
-import org.example.lsh.Point;
+import org.example.lab1.lsh.Lsh;
+import org.example.lab1.lsh.Point;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

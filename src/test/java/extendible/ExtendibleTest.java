@@ -1,6 +1,6 @@
 package extendible;
 
-import org.example.extendible.Table;
+import org.example.lab1.extendible.Table;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

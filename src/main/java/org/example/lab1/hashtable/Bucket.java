@@ -1,4 +1,4 @@
-package org.example.hashtable;
+package org.example.lab1.hashtable;
 
 import java.util.List;
 

@@ -1,8 +1,7 @@
-package org.example.hashtable;
+package org.example.lab1.hashtable;
 
 import lombok.Getter;
 
-import java.io.*;
 import java.util.ArrayList;
 
 @Getter

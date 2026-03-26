@@ -46,6 +46,12 @@
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>1.37</version>
         </dependency>
+
+        <dependency>
+            <groupId>tools.profiler</groupId>
+            <artifactId>async-profiler</artifactId>
+            <version>4.3</version>
+        </dependency>
     </dependencies>
 
     <build>

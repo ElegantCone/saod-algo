@@ -1,4 +1,4 @@
-package org.example.perfect;
+package org.example.lab1.perfect;
 
 import lombok.Getter;
 

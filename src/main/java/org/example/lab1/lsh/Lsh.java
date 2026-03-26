@@ -1,4 +1,4 @@
-package org.example.lsh;
+package org.example.lab1.lsh;
 
 import java.util.ArrayList;
 import java.util.Arrays;

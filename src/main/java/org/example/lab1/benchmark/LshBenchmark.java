@@ -1,7 +1,7 @@
-package org.example.benchmark;
+package org.example.lab1.benchmark;
 
-import org.example.lsh.Lsh;
-import org.example.lsh.Point;
+import org.example.lab1.lsh.Lsh;
+import org.example.lab1.lsh.Point;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.List;

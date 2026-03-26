@@ -1,6 +1,7 @@
-package org.example.benchmark;
+package org.example.lab1.benchmark;
 
 import lombok.NoArgsConstructor;
+import one.profiler.AsyncProfiler;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
@@ -15,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 public final class JmhRunner {
 
     public static void main(String[] args) throws RunnerException {
-        var include = args.length > 0 ? args[0] : "ExtendibleBenchmark.*";
+        var include = args.length > 0 ? args[0] : "LshBenchmark.lshInsert.*";
         Options options = new OptionsBuilder()
                 .include(include)
                 .shouldFailOnError(true)
                 .forks(3)
-                .warmupIterations(2)
+                .warmupIterations(3)
                 .measurementIterations(5)
                 .result("target/jmh-results.json")
                 .resultFormat(ResultFormatType.JSON)

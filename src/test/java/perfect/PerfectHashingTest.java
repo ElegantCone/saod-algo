@@ -1,6 +1,6 @@
 package perfect;
 
-import org.example.perfect.PerfectHashing;
+import org.example.lab1.perfect.PerfectHashing;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
-package org.example.perfect;
+package org.example.lab1.perfect;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.hashtable.Record;
+import org.example.lab1.hashtable.Record;
 
 import java.util.ArrayList;
 import java.util.List;

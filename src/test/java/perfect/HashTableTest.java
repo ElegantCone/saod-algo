@@ -1,6 +1,6 @@
 package perfect;
 
-import org.example.hashtable.HashTable;
+import org.example.lab1.hashtable.HashTable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

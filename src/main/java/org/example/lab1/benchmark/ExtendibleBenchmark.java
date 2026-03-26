@@ -1,6 +1,6 @@
-package org.example.benchmark;
+package org.example.lab1.benchmark;
 
-import org.example.extendible.Table;
+import org.example.lab1.extendible.Table;
 import org.openjdk.jmh.annotations.*;
 
 import java.io.IOException;
@@ -12,16 +12,16 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Warmup(iterations = 3, time = 1)
-@Measurement(iterations = 5, time = 3)
-@Fork(3)
+@Warmup(iterations = 1, time = 1)
+@Measurement(iterations = 1, time = 1)
+@Fork(1)
 public class ExtendibleBenchmark {
     private static final int CAPACITY = 64;
     private static final int INSERT_KEYS_COUNT = 1_000_000;
 
     @State(Scope.Benchmark)
     public static class BenchmarkData {
-        @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
+        @Param({"100", "300", "500"/*, "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"*/})
         public int size;
 
         public int[] keys;
