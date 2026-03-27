@@ -46,7 +46,7 @@ public class Lsh {
 
         var points = new ArrayList<Point>();
         for (var point : candidates) {
-            if (similarity(hash(point.x(), point.y(), point.z()), h) > threshold) {
+            if (similarity(hash(point.x(), point.y(), point.z()), h) >= threshold) {
                 points.add(point);
             }
         }
@@ -58,9 +58,8 @@ public class Lsh {
     }
 
     public List<Point> getExact(int x, int y, int z, double threshold, double radius) {
-        var points = get(x, y, z, threshold);
         var toReturn = new ArrayList<Point>();
-        for (var p : points) {
+        for (var p : get(x, y, z, threshold)) {
             var dist = Math.sqrt(Math.pow(x - p.x(), 2) + Math.pow(y - p.y(), 2) + Math.pow(z - p.z(), 2));
             if (dist <= radius) {
                 toReturn.add(p);
@@ -73,7 +72,7 @@ public class Lsh {
         lines = new int[LINE_COUNT][4];
         for (int i = 0; i < LINE_COUNT; i++) {
             for (int j = 0; j < 4; j++) {
-                lines[i][j] = random.nextInt(-1_000,1_000);
+                lines[i][j] = random.nextInt(-1_000, 1_000);
             }
         }
     }

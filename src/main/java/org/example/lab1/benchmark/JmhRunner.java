@@ -16,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 public final class JmhRunner {
 
     public static void main(String[] args) throws RunnerException {
-        var include = args.length > 0 ? args[0] : "LshBenchmark.lshInsert.*";
+        var include = args.length > 0 ? args[0] : ".*";
         Options options = new OptionsBuilder()
                 .include(include)
                 .shouldFailOnError(true)
                 .forks(3)
-                .warmupIterations(3)
+                .warmupIterations(2)
                 .measurementIterations(5)
                 .result("graphs/lab1/jmh-results.json")
                 .resultFormat(ResultFormatType.JSON)
