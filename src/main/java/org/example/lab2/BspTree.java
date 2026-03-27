@@ -7,6 +7,9 @@ import java.util.*;
 
 @NoArgsConstructor
 public class BspTree {
+    private static final int LEAF_SIZE = 8;
+    private static final int MAX_SPLITTER_CANDIDATES = 16;
+
     List<Figure> figures = new ArrayList<>();
     BspTreeNode root;
 
@@ -19,7 +22,7 @@ public class BspTree {
         return root;
     }
 
-    public Set<Figure> find(int x, int y, double threshold) {
+    public Set<Figure> find(double x, double y, double threshold) {
         var result = new HashSet<Figure>();
         find(x, y, threshold, result, root);
         return result;
@@ -50,7 +53,20 @@ public class BspTree {
     }
 
     private BspTreeNode build(List<Figure> figures) {
-        if (figures.isEmpty()) return null;
+        if (figures.isEmpty()) {
+            return null;
+        }
+
+        if (figures.size() <= LEAF_SIZE) {
+            return new BspTreeNode(
+                    figures.get(0).getRepresentativeLine(),
+                    null,
+                    null,
+                    List.of(),
+                    new ArrayList<>(figures)
+            );
+        }
+
         var splitter = findSplitter(figures);
         var coplanar = new ArrayList<Figure>();
         var front = new ArrayList<Figure>();
@@ -77,8 +93,7 @@ public class BspTree {
     private Line findSplitter(List<Figure> figures) {
         double bestScore = Double.MAX_VALUE;
         Line bestLine = null;
-        for (var figure : figures) {
-            var line = figure.getRepresentativeLine();
+        for (var line : candidateSplitters(figures)) {
             var score = calculateScore(figures, line);
             if (score < bestScore) {
                 bestScore = score;
@@ -87,6 +102,22 @@ public class BspTree {
         }
 
         return bestLine;
+    }
+
+    private List<Line> candidateSplitters(List<Figure> figures) {
+        if (figures.size() <= MAX_SPLITTER_CANDIDATES) {
+            return figures.stream()
+                    .map(Figure::getRepresentativeLine)
+                    .toList();
+        }
+
+        var candidates = new ArrayList<Line>(MAX_SPLITTER_CANDIDATES);
+        double step = (double) figures.size() / MAX_SPLITTER_CANDIDATES;
+        for (int i = 0; i < MAX_SPLITTER_CANDIDATES; i++) {
+            int index = Math.min((int) (i * step), figures.size() - 1);
+            candidates.add(figures.get(index).getRepresentativeLine());
+        }
+        return candidates;
     }
 
     private double calculateScore(List<Figure> figures, Line splitter) {
@@ -105,19 +136,8 @@ public class BspTree {
         return Math.abs(front - back) + coplanar * 0.5;
     }
 
-
     public void clear() {
         figures.clear();
         root = null;
     }
-    /*
-    Что должна уметь система:
-🔤Помещать географически расположенные объекты
-🔤Искать объекты по координатам — очевидно, не по точным (тут бы хватило любого KV), а близким
-
-В работе также требуется:
-🔤Написать бенчмарки - изменение времени работы алгоритма в зависимости от размера данных (размер БД, запрашиваемые ключи и точность)
-     */
-
-
 }

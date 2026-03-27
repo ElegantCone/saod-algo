@@ -10,11 +10,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Warmup(iterations = 1, time = 1)
-@Measurement(iterations = 1, time = 1)
-@Fork(1)
 public class ExtendibleBenchmark {
     private static final int CAPACITY = 64;
     private static final int INSERT_KEYS_COUNT = 1_000_000;

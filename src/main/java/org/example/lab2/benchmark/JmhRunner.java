@@ -1,7 +1,6 @@
-package org.example.lab1.benchmark;
+package org.example.lab2.benchmark;
 
 import lombok.NoArgsConstructor;
-import one.profiler.AsyncProfiler;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
@@ -16,14 +15,14 @@ import java.util.concurrent.TimeUnit;
 public final class JmhRunner {
 
     public static void main(String[] args) throws RunnerException {
-        var include = args.length > 0 ? args[0] : "LshBenchmark.lshInsert.*";
+        var include = args.length > 0 ? args[0] : "BspTreeBenchmark.*";
         Options options = new OptionsBuilder()
                 .include(include)
                 .shouldFailOnError(true)
                 .forks(3)
                 .warmupIterations(3)
                 .measurementIterations(5)
-                .result("graphs/lab1/jmh-results.json")
+                .result("graphs/lab2/jmh-results.json")
                 .resultFormat(ResultFormatType.JSON)
                 .mode(Mode.AverageTime)
                 .timeUnit(TimeUnit.NANOSECONDS)
