@@ -9,7 +9,6 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
-import java.util.List;
 import java.util.Random;
 
 @State(Scope.Benchmark)
@@ -19,13 +18,14 @@ public class LshBenchmark {
     public static class BenchmarkData {
         @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
         public int size;
+        public int getSize = 500;
+        Random random = new Random(42);
 
         public Point[] basePoints;
         public Point[] insertPoints;
 
         @Setup(Level.Trial)
         public void setupTrial() {
-            var random = new Random(size);
             basePoints = new Point[size];
             insertPoints = new Point[Math.max(size, 1_000)];
 
@@ -69,8 +69,8 @@ public class LshBenchmark {
             nextInsertIdx = 0;
         }
 
-        @Setup(Level.Invocation)
-        public void setupInvocation(BenchmarkData data) {
+        @Setup(Level.Iteration)
+        public void setupIteration(BenchmarkData data) {
             lsh = new Lsh();
             for (var point : data.basePoints) {
                 lsh.insert(point);
@@ -86,13 +86,27 @@ public class LshBenchmark {
     }
 
     @Benchmark
-    public List<Point> lshGet(BenchmarkData data, QueryState state) {
-        return state.lsh.get(data.basePoints[state.random.nextInt(data.size)], 0.7);
+    public void lshGetPool(BenchmarkData data, QueryState state) {
+        for (int i = 0; i < data.getSize; i++) {
+            state.lsh.get(data.basePoints[state.random.nextInt(data.size)], 0.7);
+        }
     }
 
     @Benchmark
-    public List<Point> lshGetExact(BenchmarkData data, QueryState state) {
-        return state.lsh.getExact(data.basePoints[state.random.nextInt(data.size)], 0.7, 500.0);
+    public void lshGet(BenchmarkData data, QueryState state) {
+        state.lsh.get(data.basePoints[state.random.nextInt(data.size)], 0.7);
+    }
+
+    @Benchmark
+    public void lshGetExactPool(BenchmarkData data, QueryState state) {
+        for (int i = 0; i < data.getSize; i++) {
+            state.lsh.getExact(data.basePoints[state.random.nextInt(data.size)], 0.7, 500.0);
+        }
+    }
+
+    @Benchmark
+    public void lshGetExact(BenchmarkData data, QueryState state) {
+        state.lsh.getExact(data.basePoints[state.random.nextInt(data.size)], 0.7, 500.0);
     }
 
 }

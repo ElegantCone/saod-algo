@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public final class JmhRunner {
 
     public static void main(String[] args) throws RunnerException {
-        var include = args.length > 0 ? args[0] : ".*";
+        var include = args.length > 0 ? args[0] : "^org\\.example\\.lab1\\.benchmark\\..*";
         Options options = new OptionsBuilder()
                 .include(include)
                 .shouldFailOnError(true)

@@ -11,12 +11,13 @@ import java.util.Random;
 public class PerfectHashingBenchmark {
     @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
     public int size;
+    public int getSize = 500;
     public Map<String, String> data;
     public String[] keys;
     public String[] values;
     public PerfectHashing perfectHashing;
 
-    public Random random = new Random();
+    public Random random = new Random(42);
 
     @Setup(Level.Trial)
     public void setup() {
@@ -43,7 +44,15 @@ public class PerfectHashingBenchmark {
     }
 
     @Benchmark
-    public String perfectGetExisting() {
-        return perfectHashing.get(keys[random.nextInt(keys.length)]);
+    public void perfectGetExistingPool() {
+        for (int i = 0; i < getSize; i++) {
+            perfectHashing.get(keys[random.nextInt(keys.length)]);
+        }
     }
+
+    @Benchmark
+    public void perfectGetExisting() {
+        perfectHashing.get(keys[random.nextInt(keys.length)]);
+    }
+
 }

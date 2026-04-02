@@ -16,8 +16,9 @@ public class ExtendibleBenchmark {
 
     @State(Scope.Benchmark)
     public static class BenchmarkData {
-        @Param({"100", "300", "500"/*, "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"*/})
+        @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
         public int size;
+        public int getSize = 500;
 
         public int[] keys;
         public int[] values;
@@ -116,7 +117,7 @@ public class ExtendibleBenchmark {
     }
 
     @Benchmark
-    public void extensibleInsert(BenchmarkData data, InsertState state) {
+    public void extendibleInsert(BenchmarkData data, InsertState state) {
         int nextIdx = state.nextInsertIdx++;
         if (nextIdx >= data.insertKeys.length) {
             throw new IllegalStateException("Pre-generated insert keys exhausted");
@@ -129,23 +130,25 @@ public class ExtendibleBenchmark {
     }
 
     @Benchmark
-    public Integer extensibleGetExisting(BenchmarkData data, TableState state) {
-        return state.table.get(data.keys[data.random.nextInt(data.keys.length)]);
+    public void extendibleGetExistingPool(BenchmarkData data, TableState state) {
+        for (int i = 0; i < data.getSize; i++) {
+            state.table.get(data.keys[data.random.nextInt(data.keys.length)]);
+        }
     }
 
     @Benchmark
-    public Integer extensibleGetSameEntry(BenchmarkData data, TableState state) {
-        return state.table.get(data.keys[0]);
+    public void extendibleGetExisting(BenchmarkData data, TableState state) {
+        state.table.get(data.keys[data.random.nextInt(data.keys.length)]);
     }
 
     @Benchmark
-    public void extensibleUpdateExisting(BenchmarkData data, TableState state) {
+    public void extendibleUpdateExisting(BenchmarkData data, TableState state) {
         int idx = data.random.nextInt(data.keys.length);
         state.table.update(data.keys[idx], data.random.nextInt(Integer.MAX_VALUE));
     }
 
     @Benchmark
-    public void extensibleRemoveExisting(BenchmarkData data, TableState state) {
+    public void extendibleRemoveExisting(BenchmarkData data, TableState state) {
         int key = data.keys[data.random.nextInt(data.keys.length)];
         state.table.remove(key);
     }
