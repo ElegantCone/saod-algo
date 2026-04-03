@@ -16,7 +16,8 @@ public class ExtendibleBenchmark {
 
     @State(Scope.Benchmark)
     public static class BenchmarkData {
-        @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
+        //@Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
+        @Param({"1000", "2000", "3000", "5000", "8000", "10000"})
         public int size;
         public int getSize = 500;
 
@@ -24,12 +25,11 @@ public class ExtendibleBenchmark {
         public int[] values;
         public int[] insertKeys;
         public int[] insertValues;
-        public Random random;
+        public Random random = new Random(42);
         public Path benchmarkDir;
 
         @Setup(Level.Trial)
         public void setupTrial() throws IOException {
-            random = new Random(size);
             int totalKeyCount = size + INSERT_KEYS_COUNT;
             int firstKey = random.nextInt(1, Integer.MAX_VALUE - totalKeyCount);
 
