@@ -5,7 +5,6 @@
   - [Perfect hashing](#Perfect-hashing)
   - [Extensible hashing](#Extensible-hashing)
   - [Lsh](#Lsh)
-- [2 - Деревья (BSP)](#Деревья)
 
 ## Хэширование
 | Benchmark                                    | (size) | Mode | Cnt | Score        | Error     | Units |
