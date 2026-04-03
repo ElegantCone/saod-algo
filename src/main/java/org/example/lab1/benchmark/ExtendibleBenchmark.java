@@ -16,8 +16,7 @@ public class ExtendibleBenchmark {
 
     @State(Scope.Benchmark)
     public static class BenchmarkData {
-        //@Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
-        @Param({"1000", "2000", "3000", "5000", "8000", "10000"})
+        @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
         public int size;
         public int getSize = 500;
 
