@@ -18,7 +18,7 @@ public class PerfectHashingTest {
 
     @BeforeEach
     public void beforeEach() {
-        table = new PerfectHashing(random.nextInt(1000, 10_000), random.nextInt(1000, 10_000), random.nextInt(100, 1_000));
+        table = new PerfectHashing(random.nextInt(100, 1_000));
         map = new HashMap<>(table.getTableSize());
         for (int i = 0; i < table.getTableSize(); i++) {
             var key = "key" + random.nextInt();

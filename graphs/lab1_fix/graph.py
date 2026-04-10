@@ -4,8 +4,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 PROJECT_ROOT = Path.cwd()
-RESULTS_FILE = PROJECT_ROOT / "graphs" / "lab12" / "jmh-results.json"
-OUTPUT_DIR = PROJECT_ROOT / "graphs" / "lab12" / "l2"
+RESULTS_FILE = PROJECT_ROOT / "graphs" / "lab1_fix" / "jmh-results.json"
+OUTPUT_DIR = PROJECT_ROOT / "graphs" / "lab1_fix" / "l2"
 
 def load_results(path: Path):
     with path.open("r", encoding="utf-8") as f:

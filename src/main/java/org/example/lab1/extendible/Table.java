@@ -63,6 +63,12 @@ public class Table implements AutoCloseable {
         return directory[idx].updateValue(key, value);
     }
 
+    public void forceFlush() {
+        for (Bucket bucket : directory) {
+            bucket.flush();
+        }
+    }
+
     private void resize(int insertIdx) throws IOException {
         var old = directory;
         directory = new Bucket[directory.length << 1];
@@ -126,6 +132,7 @@ public class Table implements AutoCloseable {
     @Override
     public void close() {
         for (var b : directory) {
+            b.flush();
             if (b != null) {
                 b.remove();
             }

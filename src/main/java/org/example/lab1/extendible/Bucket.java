@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 
 @Getter
 public class Bucket {
@@ -16,6 +17,10 @@ public class Bucket {
     int size;
     int capacity;
     int localDepth = 1;
+    int batchSize = 32;
+    int currentBatchSize = 0;
+    boolean isInit = true;
+    int[][] batch = new int[batchSize][1];
 
     public Bucket(String idx, int capacity) throws IOException {
         this(new File("output"), idx, capacity);
@@ -49,23 +54,39 @@ public class Bucket {
         if (size == capacity) return false;
         if (getValue(key) != null)
             throw new IllegalArgumentException("Key " + key + " already exists");
-        if (size == 0) {
-            buffer.put(0, (byte) 1);
-            buffer.position(1);
+        if (size != 0 && size % batchSize == 0) {
+            flush();
         }
-        buffer.putInt(key);
-        buffer.putInt(value);
+        batch[currentBatchSize] = new int[]{key, value};
         size++;
+        currentBatchSize++;
         return true;
     }
 
+    public void flush() {
+        if (isInit) {
+            buffer.put(0, (byte) 1);
+            buffer.position(1);
+            isInit = false;
+        }
+        for (int i = 0; i < currentBatchSize; i++) {
+            buffer.putInt(batch[i][0]);
+            buffer.putInt(batch[i][1]);
+        }
+        currentBatchSize = 0;
+    }
+
     protected KeyValue get(int idx) {
+        if (currentBatchSize != 0) flush();
         if (buffer.get(0) == 0) return null;
         var arrayIdx = Byte.BYTES + idx * Integer.BYTES * 2;
         return new KeyValue(buffer.getInt(arrayIdx), buffer.getInt(arrayIdx + Integer.BYTES));
     }
 
     protected Integer getValue(int key) {
+        for (int i = 0; i < currentBatchSize; i++) {
+            if (key == batch[i][0]) return batch[i][1];
+        }
         for (int i = 0; i < size; i++) {
             var kv = get(i);
             if (kv == null) continue;
@@ -78,6 +99,7 @@ public class Bucket {
 
     //перемещение последнего элемента на место удаляемого
     protected boolean removeValue(int key) {
+        if (currentBatchSize != 0) flush();
         for (int i = 0; i < size; i++) {
             var kv = get(i);
             if (kv == null) continue;
@@ -92,6 +114,7 @@ public class Bucket {
                 size--;
                 if (size == 0) {
                     buffer.put(0, (byte) 0);
+                    isInit = true;
                 }
                 return true;
             }
@@ -100,6 +123,7 @@ public class Bucket {
     }
 
     protected boolean updateValue(int key, int value) {
+        if (currentBatchSize != 0) flush();
         for (int i = 0; i < size; i++) {
             var kv = get(i);
             if (kv == null) continue;

@@ -25,6 +25,25 @@
 get выполняется за O(1)
 ![Рисунок 2](/graphs/lab1/perfectGetExisting_avgt.png)
 
+На больших размерах разброс скорости ответов остается около 16мс
+![](/graphs/lab1_fix/l2/perfectGetExisting_avgt.png)
+Результат бенчмарков:
+
+|Benchmark                                 |      (size)|Mode     |Cnt    |  Score    |Error| Units  |
+|------------------------------------------|------------|---------|-------|-----------|-----|--------|
+|PerfectHashingBenchmark.perfectGetExisting|        1000|  avgt   |60     |48,175 ±   |0,363|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|        2000|  avgt   |60     |52,915 ±   |0,453|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|        3000|  avgt   |60     |54,685 ±   |0,442|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|        4000|  avgt   |60     |54,647 ±   |0,600|  ns/op | 
+|PerfectHashingBenchmark.perfectGetExisting|        5000|  avgt   |60     |55,326 ±   |0,253|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|        6000|  avgt   |60     |55,427 ±   |0,244|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|       10000|  avgt   |60     |56,114 ±   |0,209|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|       15000|  avgt   |60     |57,838 ±   |0,126|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|       18000|  avgt   |60     |58,235 ±   |0,105|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|       21000|  avgt   |60     |58,685 ±   |0,117|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|       25000|  avgt   |60     |62,085 ±   |0,168|  ns/op |
+|PerfectHashingBenchmark.perfectGetExisting|       30000|  avgt   |60     |63,336 ±   |0,157|  ns/op |
+
 Аллокаций нет
 ![](/graphs/lab1/alloc/perfect-get.png)
 

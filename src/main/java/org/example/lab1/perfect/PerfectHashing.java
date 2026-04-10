@@ -7,30 +7,40 @@ import java.util.*;
 @Getter
 public class PerfectHashing {
     private final PerfectBucket[] tables;
-    private final Integer a;
-    private final Integer b;
+    private Integer a;
+    private Integer b;
+    int max = 1_000_000_003;
     private final Integer tableSize;
     private final Random random = new Random();
 
-    public PerfectHashing(Integer a, Integer b, Integer tableSize) {
-        this.a = a;
-        this.b = b;
+    public PerfectHashing(Integer tableSize) {
         this.tableSize = tableSize;
         tables = new PerfectBucket[tableSize];
     }
 
     public void build(Map<String, String> data) {
-        clear();
-        for (var entry : data.entrySet()) {
-            var hash = hash(entry.getKey());
-            if (tables[hash] == null) {
-                tables[hash] = new PerfectBucket();
+        var build = false;
+        while (!build) {
+            clear();
+            this.a = random.nextInt(10, max);
+            this.b = random.nextInt(10, max);
+            for (var entry : data.entrySet()) {
+                var hash = hash(entry.getKey());
+                if (tables[hash] == null) {
+                    tables[hash] = new PerfectBucket();
+                }
+                tables[hash].add(entry.getKey(), entry.getValue());
             }
-            tables[hash].add(entry.getKey(), entry.getValue());
-        }
-        for (var table : tables) {
-            if (table == null) continue;
-            table.buildTable();
+
+            build = true;
+            for (var table : tables) {
+                if (table == null) continue;
+                var built = table.buildTable();
+                if (!built) {
+                    build = false;
+                    break;
+                }
+            }
         }
     }
 
@@ -44,11 +54,10 @@ public class PerfectHashing {
     }
 
     public int hash(String str) {
-        long sum = 0;
-        for (var c : str.toCharArray()) {
-            sum += c;
-        }
-        return (int) ((a * sum + b) % tableSize);
+        long hash = str.hashCode();
+        hash = hash == Integer.MIN_VALUE ? 0 : Math.abs(hash);
+        hash = ((long) a * hash + b) % max;
+        return (int) (hash % tableSize);
     }
 
     private void clear() {

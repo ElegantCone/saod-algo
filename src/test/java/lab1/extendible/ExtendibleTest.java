@@ -37,6 +37,7 @@ public class ExtendibleTest {
             } catch (IllegalArgumentException ignored) {
             }
         }
+        table.forceFlush();
     }
 
     @Test
