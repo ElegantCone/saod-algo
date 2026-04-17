@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 
 @Getter
 public class Bucket {

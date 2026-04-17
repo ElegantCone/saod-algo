@@ -19,30 +19,22 @@
 Все alloc памяти сделаны только для внутренних структур данных
 ![](/graphs/lab1/alloc/perfect-build.png)
 
+### **FIX!** 
+После внесения правок (перераспределение значений между бакетами при ограничении попыток вычисления неповторяющихся хэш-функций внутри бакета), затраты на выделение памяти под массивы уменьшилось
+![](graphs/lab1_fix/alloc/perfectBuild-alloc.png)
+
 Больше всего CPU расходует вычисление hash-функции
 ![](/graphs/lab1/cpu/perfect-build.png)
 
 get выполняется за O(1)
 ![Рисунок 2](/graphs/lab1/perfectGetExisting_avgt.png)
 
-На больших размерах разброс скорости ответов остается около 16мс
-![](/graphs/lab1_fix/l2/perfectGetExisting_avgt.png)
-Результат бенчмарков:
+### FIX! 
+При увеличении количества элементов в таблице и получении 500 рандомных ключей из возможных:
+![](/graphs/lab1_fix/l2/perfectGetExistingPool_randomKeys_avgt.png)
 
-|Benchmark                                 |      (size)|Mode     |Cnt    |  Score    |Error| Units  |
-|------------------------------------------|------------|---------|-------|-----------|-----|--------|
-|PerfectHashingBenchmark.perfectGetExisting|        1000|  avgt   |60     |48,175 ±   |0,363|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|        2000|  avgt   |60     |52,915 ±   |0,453|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|        3000|  avgt   |60     |54,685 ±   |0,442|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|        4000|  avgt   |60     |54,647 ±   |0,600|  ns/op | 
-|PerfectHashingBenchmark.perfectGetExisting|        5000|  avgt   |60     |55,326 ±   |0,253|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|        6000|  avgt   |60     |55,427 ±   |0,244|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|       10000|  avgt   |60     |56,114 ±   |0,209|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|       15000|  avgt   |60     |57,838 ±   |0,126|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|       18000|  avgt   |60     |58,235 ±   |0,105|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|       21000|  avgt   |60     |58,685 ±   |0,117|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|       25000|  avgt   |60     |62,085 ±   |0,168|  ns/op |
-|PerfectHashingBenchmark.perfectGetExisting|       30000|  avgt   |60     |63,336 ±   |0,157|  ns/op |
+В случае получения одинакового пула ключей видно отсутствие линейной зависимости:
+![](/graphs/lab1_fix/l2/perfectGetExistingPool_avgt.png)
 
 Аллокаций нет
 ![](/graphs/lab1/alloc/perfect-get.png)
@@ -56,11 +48,21 @@ get выполняется за O(1)
 Вставка осуществляется за O(1), но иногда сильно проседает - вероятно, связано с фоновыми процессами и неидеальным измерением, поскольку видны сильные отклонения от среднего значения. Также может быть связано с проверкой существования ключа в бакете
 ![Рисунок 3](/graphs/lab1/extensibleInsert_avgt.png)
 
+### FIX!
+Повторные эксперименты с вставкой батчами показали, что заметнее всего просадки на малом числе элементов - поскольку часто нужно сплитить бакеты и перемещать элементы.
+На больших значениях вставка больше похожа на O(1).
+![](graphs/lab1_fix/l2/extendibleInsertBatch_avgt.png)
+
 Память затрачена на создание файлов
 ![](/graphs/lab1/alloc/extendible-insert.png)
 
 Больше всего CPU уходит на создание файлов и доступ к ним для записи. Можно улучшить буферной записью
 ![](/graphs/lab1/cpu/extendible-insert.png)
+
+### FIX!
+
+При буферизованой записи граф выглядит следующим образом:
+![](/graphs/lab1_fix/cpu/extensibleInsertCpu.png)
 
 Получение записи выполняется за O(1)
 ![Рисунок 4](/graphs/lab1/extensibleGetExisting_avgt.png)

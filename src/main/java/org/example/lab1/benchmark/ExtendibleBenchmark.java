@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 public class ExtendibleBenchmark {
@@ -16,7 +15,8 @@ public class ExtendibleBenchmark {
 
     @State(Scope.Benchmark)
     public static class BenchmarkData {
-        @Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
+        //@Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
+        @Param({"1000", "3000", "5000", "10000", "15000", "21000", "25000", "30000"})
         public int size;
         public int getSize = 500;
 
@@ -27,7 +27,7 @@ public class ExtendibleBenchmark {
         public Random random = new Random(42);
         public Path benchmarkDir;
 
-        @Setup(Level.Trial)
+        @Setup(Level.Iteration)
         public void setupTrial() throws IOException {
             int totalKeyCount = size + INSERT_KEYS_COUNT;
             int firstKey = random.nextInt(1, Integer.MAX_VALUE - totalKeyCount);
@@ -49,7 +49,7 @@ public class ExtendibleBenchmark {
             benchmarkDir = Files.createTempDirectory("extendible-benchmark-");
         }
 
-        @TearDown(Level.Trial)
+        @TearDown(Level.Iteration)
         public void cleanupTrial() {
             if (benchmarkDir == null) {
                 return;
@@ -93,7 +93,7 @@ public class ExtendibleBenchmark {
         public Table table;
         public int nextInsertIdx;
 
-        @Setup(Level.Trial)
+        @Setup(Level.Iteration)
         public void setupTrial() {
             nextInsertIdx = 0;
         }
@@ -129,16 +129,28 @@ public class ExtendibleBenchmark {
     }
 
     @Benchmark
+    public void extendibleInsertBatch(BenchmarkData data, InsertState state) {
+        try {
+            for (int i = 0; i < data.getSize; i++) {
+                int nextIdx = state.nextInsertIdx++;
+                state.table.insert(data.insertKeys[nextIdx], data.insertValues[nextIdx]);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to insert new key", e);
+        }
+    }
+
+    @Benchmark
     public void extendibleGetExistingPool(BenchmarkData data, TableState state) {
         for (int i = 0; i < data.getSize; i++) {
             state.table.get(data.keys[data.random.nextInt(data.keys.length)]);
         }
     }
 
-    @Benchmark
+    /*@Benchmark
     public void extendibleGetExisting(BenchmarkData data, TableState state) {
         state.table.get(data.keys[data.random.nextInt(data.keys.length)]);
-    }
+    }*/
 
     @Benchmark
     public void extendibleUpdateExisting(BenchmarkData data, TableState state) {

@@ -9,11 +9,10 @@ import java.util.Random;
 
 @State(Scope.Benchmark)
 public class PerfectHashingBenchmark {
-    //@Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3000"})
-
     @State(Scope.Benchmark)
     public static class BenchmarkData {
-        @Param({"1000", "2000", "3000", "4000", "5000", "6000", "10000", "15000", "18000", "21000", "25000", "30000"})
+        //@Param({"100", "300", "500", "700", "1000", "1300", "1600", "1900", "2100", "2500", "2800", "3200", "3500", "4000", "4500", "5000", "5500", "6000", "6500", "7000", "7500", "8000", "8500", "9000", "9500", "10000"})
+        @Param({"500", "1000", "3000", "5000", "10000"})
         public int size;
         public Map<String, String> data;
         public String[] keys;
@@ -31,6 +30,10 @@ public class PerfectHashingBenchmark {
             for (var i = 0; i < size; i++) {
                 keys[i] = "key-" + i + "-" + Math.abs(random.nextInt());
                 values[i] = "value-" + i + "-" + Math.abs(random.nextInt());
+                if (data.containsKey(keys[i])) {
+                    i--;
+                    continue;
+                }
                 data.put(keys[i], values[i]);
             }
         }
@@ -41,11 +44,11 @@ public class PerfectHashingBenchmark {
         data.perfectHashing.build(data.data);
     }
 
-    @State(Scope.Thread)
+    @State(Scope.Benchmark)
     public static class GetState {
         public int getSize = 500;
 
-        @Setup(Level.Iteration)
+        @Setup(Level.Trial)
         public void setupTrial(BenchmarkData data) {
             data.perfectHashing.build(data.data);
         }
@@ -54,13 +57,13 @@ public class PerfectHashingBenchmark {
     @Benchmark
     public void perfectGetExistingPool(GetState state, BenchmarkData data) {
         for (int i = 0; i < state.getSize; i++) {
-            data.perfectHashing.get(data.keys[data.random.nextInt(data.keys.length)]);
+            data.perfectHashing.get(data.keys[data.random.nextInt(0, state.getSize)]);
         }
     }
 
-    @Benchmark
+    /*@Benchmark
     public void perfectGetExisting(GetState state, BenchmarkData data) {
         data.perfectHashing.get(data.keys[data.random.nextInt(data.keys.length)]);
-    }
+    }*/
 
 }
